@@ -4,7 +4,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     int n = 0;
     pid_t pid;
 
