@@ -22,6 +22,7 @@ int main(void)
 	while (should_run) {
         background = 0;
         printf("osh>"); fflush(stdout);
+        parseCommand(commandBuffer, args, &background);
         /**
         * After reading user input, the steps are:
         * (1) fork a child process using fork()
