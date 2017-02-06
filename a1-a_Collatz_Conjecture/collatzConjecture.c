@@ -6,26 +6,26 @@
 
 int main(int argc, char *argv[])
 {
-    int n = 0;
-    pid_t pid;
+    int n = 0; // initialize counter 
+    pid_t pid; // process variable
 
-    if (argc == 2) {
+    if (argc == 2) { // check for starting number & convert to int
         n = atoi(argv[1]);
     } else {
         printf("Error: You must enter a single positive integer.\n");
         exit(1);
     }
 
-    if (n <= 0) {
+    if (n <= 0) { // verify number is greater than 0
         printf("Error: Input must be greater than 0\n");
         exit(1);
     }
     
-    pid = fork();
+    pid = fork(); // duplicate the process
 
-    if (pid == 0) {
-        printf("%d ", n);
-        while (n != 1) {
+    if (pid == 0) { // check if process was created
+        printf("%d ", n); 
+        while (n != 1) { // loop for collatz until n=1
             if (n % 2 == 0) {
                 n = n / 2;
             } else {
