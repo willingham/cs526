@@ -7,14 +7,17 @@
 
 void parseCommand(char commandBuffer[], char *args[], int *background)
 {
-    int comLength;
-    
-    comLength = read(STDIN_FILENO, commandBuffer, MAX_LINE);
+    fgets(commandBuffer, MAX_LINE, stdin);
+    if (strlen(commandBuffer > 1)) {
+        if (commandBuffer[0] == '!') {
+            int commandNumber; // TODO get history number
+        }
+    }
 }
 
 int main(void)
 {
-    char commandBuffer[MAX_LINE];
+    char commandBuffer[MAX_LINE + 1];
 	char *args[MAX_LINE/2 + 1]; // command line arguments
 	int should_run = 1; // flag to determine when to exit program
     int background = 0; // flag to run in background
@@ -23,6 +26,8 @@ int main(void)
         background = 0;
         printf("osh>"); fflush(stdout);
         parseCommand(commandBuffer, args, &background);
+                
+
         /**
         * After reading user input, the steps are:
         * (1) fork a child process using fork()
