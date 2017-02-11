@@ -4,20 +4,37 @@
 #define MAX_LINE 80 // The maximum length command 
 #define HISTORY_SIZE 10 
 
-
-void parseCommand(char commandBuffer[], char *args[], int *background)
+int parseHistoryNumber(char *bfrCommand, int commandNumber)
 {
-    fgets(commandBuffer, MAX_LINE, stdin);
-    if (strlen(commandBuffer > 1)) {
-        if (commandBuffer[0] == '!') {
+    int len = strlen(bfrCommand);
+    if (length[0] < 2) {
+        return -1;
+    } else if (bfrCommand[1] == '!') {
+        return commandNumber; // commandNumber = 0
+    } else {
+        int result = atoi(bfrCommand[1]);
+        if (result == 0) {
+            return -1;
+        } else {
+            return result;
+        }
+    }
+}
+
+void parseCommand(char bfrCommand[], char *args[], int *background)
+{
+    fgets(bfrCommand, MAX_LINE, stdin);
+    if (strlen(bfrCommand) > 1) {
+        if (bfrCommand[0] == '!') {
             int commandNumber; // TODO get history number
+            
         }
     }
 }
 
 int main(void)
 {
-    char commandBuffer[MAX_LINE + 1];
+    char bfrCommand[MAX_LINE + 1];
 	char *args[MAX_LINE/2 + 1]; // command line arguments
 	int should_run = 1; // flag to determine when to exit program
     int background = 0; // flag to run in background
@@ -25,7 +42,7 @@ int main(void)
 	while (should_run) {
         background = 0;
         printf("osh>"); fflush(stdout);
-        parseCommand(commandBuffer, args, &background);
+        parseCommand(bfrCommand, args, &background);
                 
 
         /**
