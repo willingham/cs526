@@ -1,3 +1,9 @@
+//////////////////////////////
+// Collatz Conjecture
+// Author: Thomas Willingham
+// Date: 2017 February
+/////////////////////////////
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
