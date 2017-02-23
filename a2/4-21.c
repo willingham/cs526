@@ -12,17 +12,20 @@ struct s {
 
 void *average(void *n)
 {
+    printf("Entering average thread\n");
     struct s *nums = (struct s*)n;
     nums->avg = 0;
     for (int i=0; i<nums->len; i++) {
         nums->avg += nums->numbers[i];
     }
     nums->avg /= nums->len;
+    printf("Exiting average thread\n");
     return NULL;
 }
     
 void *minimum(void *n)
 {
+    printf("Entering minimum thread\n");
     struct s *nums = (struct s*)n;
     nums->min = nums->numbers[0];
     for (int i=1; i<nums->len; i++) {
@@ -30,11 +33,13 @@ void *minimum(void *n)
             nums->min = nums->numbers[i];
         }
     }
+    printf("Exiting minimum thread\n");
     return NULL;
 }
 
 void *maximum(void *n)
 {
+    printf("Entering maximum thread\n");
     struct s *nums = (struct s*)n;
     nums->max = nums->numbers[0];
     for (int i=1; i<nums->len; i++) {
@@ -42,11 +47,16 @@ void *maximum(void *n)
             nums->max = nums->numbers[i];
         }
     }
+    printf("Exiting maximum thread\n");
     return NULL;
 }
 
 int main(int argc, char **argv)
 {
+    if (argc == 1) {
+        printf("usage: <program> <num list>\n");
+        return 1;
+    }
     struct s *nums = malloc(sizeof(struct s));
     nums->len = argc-1;
     nums->numbers = malloc(sizeof(int)*nums->len);
