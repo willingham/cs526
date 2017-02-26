@@ -78,17 +78,16 @@ void *producer(void *param)
 {
     buffer_item item; 
     while (1) {
-        sleep(rand() % 8 + 1);
-        item = rand();
         sem_wait(&empty);
         pthread_mutex_lock(&mutex);
+        sleep(rand() % 8 + 1);
+        item = rand();
 
         if (insertItem(item)) {
             fprintf(stderr, " Producer error\n");
         } else {
             printf("Producer produced %d\n", item);
         }
-
         pthread_mutex_unlock(&mutex);
         sem_post(&full);
     }
@@ -98,16 +97,15 @@ void *consumer(void *param) {
     buffer_item item;
 
     while (1) {
-        sleep(rand() % 8 + 1);
         sem_wait(&full);
         pthread_mutex_lock(&mutex);
+        sleep(rand() % 8 + 1);
 
         if (remove_item(&item)) {
             fprintf(stderr, "Consumer error\n");
         } else {
             printf("Consumer consumed %d\n", item);
         }
-
         pthread_mutex_unlock(&mutex);
         sem_post(&empty);
     }
