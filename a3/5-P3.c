@@ -34,15 +34,15 @@ int main(int argc, char **argv)
     int numProducer = atoi(argv[2]);
     int numConsumer = atoi(argv[3]);
 
-    srand(time(NULL)); // generate random seed
+    time_t t;
+    srand((unsigned) time(&t)); // generate random seed
     pthread_mutex_init(&mutex, NULL);
     sem_init(&full, 0, 0);
     sem_init(&empty, 0, BUFFER_SIZE);
     counter = 0;
-    //printf("numProducer: %d, numConsumer: %d\n", numProducer, numConsumer);
 
-    pthread_t producers[numProducer];
-    pthread_t consumers[numConsumer];
+    pthread_t *producers = malloc(sizeof(pthread_t)*numProducer);
+    pthread_t *consumers = malloc(sizeof(pthread_t)*numConsumer);
 
     for (int i=0; i < numProducer; i++) {
         pthread_create(&producers[i], NULL, producer, NULL);
@@ -57,32 +57,42 @@ int main(int argc, char **argv)
 
 int insertItem(buffer_item item)
 {
+    int success;
+    sem_wait(&empty);
+    pthread_mutex_lock(&mutex);
     if (counter < BUFFER_SIZE) {
         buffer[counter] = item;
         counter++;
-        return 0;
+        success = 0;
     } else {
-        return -1;
+        success = -1;
     }
+    pthread_mutex_unlock(&mutex);
+    sem_post(&full);
+    return success;
 }
 
 int removeItem(buffer_item *item)
 {
+    int success;
+    sem_wait(&full);
+    pthread_mutex_lock(&mutex);
     if (counter > 0) {
         *item = buffer[counter - 1];
         counter--;
-        return 0;
+        success = 0;
     } else {
-        return -1;
+        success = -1;
     }
+    pthread_mutex_unlock(&mutex);
+    sem_post(&empty);
+    return success;
 }
 
 void *producer(void *param)
 {
     buffer_item item; 
     while (1) {
-        sem_wait(&empty);
-        pthread_mutex_lock(&mutex);
         sleep(rand() % 5 + 1);
         item = rand();
 
@@ -91,8 +101,6 @@ void *producer(void *param)
         } else {
             printf("Producer produced %d\n", item);
         }
-        pthread_mutex_unlock(&mutex);
-        sem_post(&full);
     }
 }
 
@@ -100,8 +108,6 @@ void *consumer(void *param) {
     buffer_item item;
 
     while (1) {
-        sem_wait(&full);
-        pthread_mutex_lock(&mutex);
         sleep(rand() % 5 + 1);
 
         if (removeItem(&item)) {
@@ -109,7 +115,5 @@ void *consumer(void *param) {
         } else {
             printf("Consumer consumed %d\n", item);
         }
-        pthread_mutex_unlock(&mutex);
-        sem_post(&empty);
     }
 }
