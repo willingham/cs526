@@ -97,7 +97,7 @@ void *producer(void *param)
         item = rand();
 
         if (insertItem(item)) {
-            fprintf(stderr, "Producer error\n");
+            fprintf(stderr, "Producer error: Buffer full\n");
         } else {
             printf("Producer produced %d\n", item);
         }
@@ -111,7 +111,7 @@ void *consumer(void *param) {
         sleep(rand() % 5 + 1);
 
         if (removeItem(&item)) {
-            fprintf(stderr, "Consumer error\n");
+            fprintf(stderr, "Consumer error: Buffer empty\n");
         } else {
             printf("Consumer consumed %d\n", item);
         }
