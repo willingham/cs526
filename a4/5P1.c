@@ -51,6 +51,9 @@ int main(int argc, char **argv)
 
     pthread_create(&thread_ta, NULL, teachingAssistant, NULL);  // create ta thread
     for (int i=0; i<numStudents; i++) pthread_create(&thread_st[i], NULL, student, (void*)(int) i+1);  // create student threads
+
+    sleep(10);  // run for 10 seconds
+    abort();    // abort program
     
     pthread_join(thread_ta, NULL);  // join ta thread
     for (int i=0; i<numStudents; i++) pthread_join(thread_st[i], NULL);  // join student threads
@@ -64,14 +67,15 @@ void *teachingAssistant()
     while (1) {
         sem_wait(&sem_ta);  // wait until TA is woken up
         pthread_mutex_lock(&mutex);  // get a lock
-        printf("      TA - is teaching student %d.\n", chairs[curChair]);
+        printf("     TA - is teaching student %d.\n", chairs[curChair]);
         numStudentsInChairs--;
         chairs[curChair] = 0;  // 'empty' the current chair
         curChair = (curChair % NUM_CHAIRS) + 1;  // determine the next chair
-        printf("STUDENTS - %d, %d, and %d are waiting in chairs.\n", chairs[0], chairs[1], chairs[2]);
+        printf("STUDENT - %d, %d, and %d are waiting in chairs.\n", chairs[0], chairs[1], chairs[2]);
+        printf(" CHAIRS - %d available.\n", NUM_CHAIRS - numStudentsInChairs);
         pthread_mutex_unlock(&mutex);
         sleep((rand() % MAX_SLEEP) + 1);  // sleep between 1 and MAX_SLEEP seconds
-        printf("      TA - finished teaching student.\n");
+        printf("     TA - finished teaching student.\n");
         sem_post(&sem_st);  // signal student
     }
 }
@@ -79,22 +83,22 @@ void *teachingAssistant()
 
 void *student(void *id)
 {
-    printf(" STUDENT - %d is programming.\n", (int)id);
+    printf("STUDENT - %d is programming.\n", (int)id);
     while (1) {
         sleep((rand() % MAX_SLEEP) + 1);  // sleep between 1 and MAX_SLEEP seconds
         pthread_mutex_lock(&mutex);       // get a lock
         if (NUM_CHAIRS <= numStudentsInChairs) {
             pthread_mutex_unlock(&mutex);  // unlock if no available chairs
-            printf("  CHAIRS - full; STUDENT %d programming.\n", (int)id);
+            printf(" CHAIRS - full; STUDENT %d programming.\n", (int)id);
         } else {
             chairs[curStudent] = (int)id;   // 'sitting down' in the current chair
             numStudentsInChairs++;
-            printf(" STUDENT - %d is sitting in a chair.\n", chairs[curStudent]);
-            printf("STUDENTS - %d, %d, and %d are waiting in chairs.\n", chairs[0], chairs[1], chairs[2]);
+            printf("STUDENT - %d sat down in a chair.\n", chairs[curStudent]);
+            printf("STUDENT - %d, %d, and %d are waiting in chairs.\n", chairs[0], chairs[1], chairs[2]);
             curStudent = (curStudent % NUM_CHAIRS) + 1;  // determine next student
             pthread_mutex_unlock(&mutex);
-            sem_post(&sem_ta);
-            sem_wait(&sem_st);
+            sem_post(&sem_ta); // signal the ta
+            sem_wait(&sem_st); // wait on ta before running again
         }
     }
 }
