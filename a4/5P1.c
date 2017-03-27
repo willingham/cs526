@@ -42,6 +42,13 @@ int main(int argc, char **argv)
         printf("Creating %d student threads\n", numStudents);
     }
 
+    printf("This program will run for %d seconds.\n", numStudents * 5);
+    printf("----- Starting in 5"); fflush(stdout); sleep(1);
+                     printf(" 4"); fflush(stdout); sleep(1);
+                     printf(" 3"); fflush(stdout); sleep(1);
+                     printf(" 2"); fflush(stdout); sleep(1);
+                     printf(" 1.\n"); fflush(stdout); sleep(1);
+
     thread_st = (pthread_t*)malloc(sizeof(pthread_t)*numStudents);      // allocate memory for student threads
     pthread_mutex_init(&mutex, NULL);
     sem_init(&sem_ta, 0, 0);            // init ta semaphore to 0
@@ -52,7 +59,7 @@ int main(int argc, char **argv)
     pthread_create(&thread_ta, NULL, teachingAssistant, NULL);  // create ta thread
     for (int i=0; i<numStudents; i++) pthread_create(&thread_st[i], NULL, student, (void*)(int) i+1);  // create student threads
 
-    sleep(10);  // run for 10 seconds
+    sleep(numStudents * 5);  // run for numStudents * 5 seconds
     abort();    // abort program
     
     pthread_join(thread_ta, NULL);  // join ta thread
