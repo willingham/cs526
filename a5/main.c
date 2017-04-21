@@ -25,7 +25,7 @@ typedef struct tlbEntry
 
 FILE *backingStore = NULL;;
 FILE *addresses = NULL;
-unsigned int PHYSICAL_MEMORY_SIZE = 65536;
+unsigned int PHYSICAL_MEMORY_SIZE = 65536; //32768;
 
 void doStartup(int argc, char *argv[])
 {
@@ -33,7 +33,7 @@ void doStartup(int argc, char *argv[])
         fprintf(stderr, "usage: <program> <address input file>");
         exit(0);
     }
-    addresses = fopen(argv[2], "r");
+    addresses = fopen(argv[1], "r");
     backingStore = fopen("BACKING_STORE.bin", "r");
 }
 
@@ -53,16 +53,11 @@ void doVirtualMemorySimulation()
         pageTable[i] = pageDefault;
     }
 
-    int nextFrame = 0;
     tlbEntry tlb[TLB_ENTRY_SIZE];
-    int tlbHead = 0;
-    int tlbSize = 0;
-
     char line[256];
-    int logicalAddress = 0;
-    int pageNum = 0;
-    int pageOff = 0;
-    int frameNum = -1;
+    int nextFrame = 0, tlbHead = 0, tlbSize = 0;
+    int logicalAddress = 0, pageNum = 0, pageOff = 0, frameNum = -1;
+
     while (fgets(line, sizeof(line), addresses) != NULL) {
         logicalAddress = atoi(line);
         pageNum = (logicalAddress & 0x0000FFFF) >> 8;
@@ -107,7 +102,8 @@ void doVirtualMemorySimulation()
                 pageTable[pageNum].frame = frameNum;
                 pageTable[pageNum].valid = 1;
                 free[frameNum] = 1;
-                nextFrame = ++nextFrame % PHYSICAL_FRAME_COUNT;
+                nextFrame++;
+                nextFrame = nextFrame % PHYSICAL_FRAME_COUNT;
             }
 
             tlbEntry newEntry = 
@@ -118,7 +114,8 @@ void doVirtualMemorySimulation()
             };
 
             tlb[tlbHead] = newEntry;
-            tlbHead = ++tlbHead % TLB_ENTRY_SIZE;
+            tlbHead++;
+            tlbHead = tlbHead % TLB_ENTRY_SIZE;
             if (tlbSize < TLB_ENTRY_SIZE) tlbSize++;
         }
 
@@ -128,8 +125,8 @@ void doVirtualMemorySimulation()
         totalAccesses++;
     }
 
-    double faultRate = totalFaults / totalAccesses * 1.0;
-    double hitRate = totalHits / totalAccesses * 1.0;
+    double faultRate = totalFaults * 1.0 / totalAccesses;
+    double hitRate = totalHits * 1.0 / totalAccesses;
 
     printf("Number of Translated Addresses = %d\n", totalAccesses);
     printf("Page Faults = %d\n", totalFaults);
@@ -147,6 +144,7 @@ void doTeardown()
 int main(int argc, char *argv[])
 {
     doStartup(argc, argv);
+    printf("Startup done\n");
     doVirtualMemorySimulation();
     doTeardown();
 }
