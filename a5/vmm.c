@@ -136,7 +136,7 @@ void doVirtualMemorySimulation()
                     }
                 }
                 fseek(backingStore, PAGE_TABLE_ENTRY_SIZE * pageNum, SEEK_SET);
-                fread(&memoryPhysical[FRAME_SIZE], 1, PAGE_TABLE_ENTRY_SIZE, backingStore);
+                fread(&memoryPhysical[FRAME_SIZE * frameNum], 1, PAGE_TABLE_ENTRY_SIZE, backingStore);
 
                 pageTable[pageNum].frame = frameNum;
                 pageTable[pageNum].valid = 1;
