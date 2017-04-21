@@ -1,3 +1,11 @@
+//////////////////////////////////////////
+// CS526: Operating Systems
+// Assignment 5: Virtual Memory Manager
+//
+// Author: Thomas Willingham
+// Date 2017 April
+//////////////////////////////////////////
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +17,11 @@
 #define FRAME_SIZE 256
 #define LOGICAL_MEMORY_SIZE 66536
 #define PHYSICAL_FRAME_COUNT (PHYSICAL_MEMORY_SIZE / FRAME_SIZE)
+
+void doStartup(int argc, char *argv[]);
+void getPhysicalMemorySize();
+void doVirtualMemorySimulation();
+void doTeardown();
 
 typedef struct page
 {
@@ -27,12 +40,38 @@ FILE *backingStore = NULL;;
 FILE *addresses = NULL;
 unsigned int PHYSICAL_MEMORY_SIZE = 65536; //32768;
 
+int main(int argc, char *argv[])
+{
+    doStartup(argc, argv);
+    printf("Startup done\n");
+    doVirtualMemorySimulation();
+    doTeardown();
+}
+
+void getPhysicalMemorySize() {
+    char physicalMemorySizeOption[2] = {0, '\0'};
+    printf("Physical address space size: \n");
+    printf("        (default) 0 = 65536\n");
+    printf("                  1 = 32768\n");
+    fflush(stdout);
+    fgets(physicalMemorySizeOption, 2, stdin);
+    if (physicalMemorySizeOption[0] == '1') PHYSICAL_MEMORY_SIZE = 32768;
+}
+
 void doStartup(int argc, char *argv[])
 {
     if (argc != 2) {
         fprintf(stderr, "usage: <program> <address input file>");
         exit(0);
     }
+
+    printf("############################################\n");
+    printf("#               Starting the               #\n"); 
+    printf("#   Super Awesome Virtual Memory Manager   #\n");
+    printf("############################################\n");
+
+    getPhysicalMemorySize();
+
     addresses = fopen(argv[1], "r");
     backingStore = fopen("BACKING_STORE.bin", "r");
 }
@@ -141,10 +180,3 @@ void doTeardown()
     fclose(backingStore);
 }
 
-int main(int argc, char *argv[])
-{
-    doStartup(argc, argv);
-    printf("Startup done\n");
-    doVirtualMemorySimulation();
-    doTeardown();
-}
